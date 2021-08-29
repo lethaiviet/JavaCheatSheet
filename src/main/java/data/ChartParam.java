@@ -2,7 +2,6 @@ package data;
 
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.jfree.data.xy.XYDataset;
 
 @Getter

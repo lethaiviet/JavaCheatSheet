@@ -2,17 +2,19 @@ package scripts;
 
 import data.ChartParam;
 import org.apache.commons.lang3.time.StopWatch;
-import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-import java.awt.*;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class CompareStreamWithFor {
     public static void main(String[] args) {
+        compareTimeOfFilterBetweenFORAndSTEAM();
+    }
+
+    public static void compareTimeOfFilterBetweenFORAndSTEAM() {
         int num = 10000000;
         List<Integer> sizes = List.of(num, num * 2, num * 3, num * 4, num * 5);
         Map<Integer, int[]> mapData = createMapWithListSizes(sizes);
@@ -39,6 +41,76 @@ public class CompareStreamWithFor {
         ChartParam chartParam = ChartParam.builder()
                 .titleWindow("Line Chart")
                 .titleChart("Elapsed Time Of Filter By Loop FOR And STREAM")
+                .xAxisLabel("Size data")
+                .yAxisLabel("Time (ms)")
+                .dataset(dataset)
+                .build();
+
+        var ex = new LineChart(chartParam);
+        ex.setVisible(true);
+    }
+
+    public static void compareTimeOfFilterBetweenSTEAMAndSTEAMPARALLEL() {
+        int num = 10000000;
+        List<Integer> sizes = List.of(num, num * 2, num * 3, num * 4, num * 5);
+        Map<Integer, int[]> mapData = createMapWithListSizes(sizes);
+
+        var series = new XYSeries("Stream parallel");
+        for (Map.Entry<Integer, int[]> e : mapData.entrySet()) {
+            series.add((double) e.getKey(), getElapsedTimeOfFilterWithStreamParallelInMs(e.getValue()));
+        }
+
+        var series2 = new XYSeries("Stream");
+        for (Map.Entry<Integer, int[]> e : mapData.entrySet()) {
+            series2.add((double) e.getKey(), getElapsedTimeOfFilterWithStreamInMs(e.getValue()));
+        }
+
+        // remove memory
+        mapData = null;
+        System.gc();
+
+        var dataset = new XYSeriesCollection();
+        dataset.addSeries(series);
+        dataset.addSeries(series2);
+
+        ChartParam chartParam = ChartParam.builder()
+                .titleWindow("Line Chart")
+                .titleChart("Elapsed Time Of Filter By STREAM PARALLEL And STREAM")
+                .xAxisLabel("Size data")
+                .yAxisLabel("Time (ms)")
+                .dataset(dataset)
+                .build();
+
+        var ex = new LineChart(chartParam);
+        ex.setVisible(true);
+    }
+
+    public static void compareTimeOfFindingMAXBetweenSTEAMAndSTEAMPARALLEL() {
+        int num = 10000000;
+        List<Integer> sizes = List.of(num, num * 2, num * 3, num * 4, num * 5);
+        Map<Integer, int[]> mapData = createMapWithListSizes(sizes);
+
+        var series = new XYSeries("For");
+        for (Map.Entry<Integer, int[]> e : mapData.entrySet()) {
+            series.add((double) e.getKey(), getElapsedTimeOfFindMaxWithForLoopInMs(e.getValue()));
+        }
+
+        var series2 = new XYSeries("Stream");
+        for (Map.Entry<Integer, int[]> e : mapData.entrySet()) {
+            series2.add((double) e.getKey(), getElapsedTimeOfFindMaxWithForStreamInMs(e.getValue()));
+        }
+
+        // remove memory
+        mapData = null;
+        System.gc();
+
+        var dataset = new XYSeriesCollection();
+        dataset.addSeries(series);
+        dataset.addSeries(series2);
+
+        ChartParam chartParam = ChartParam.builder()
+                .titleWindow("Line Chart")
+                .titleChart("Elapsed Time Of Finding MAX By FOR And STREAM")
                 .xAxisLabel("Size data")
                 .yAxisLabel("Time (ms)")
                 .dataset(dataset)
@@ -77,9 +149,37 @@ public class CompareStreamWithFor {
 
     public static long getElapsedTimeOfFilterWithStreamInMs(int[] arrayInt) {
         StopWatch stopWatch = StopWatch.createStarted();
+        List<Integer> numberFiltered2 = Arrays.stream(arrayInt)
+                .boxed()
+                .filter(x -> x > 50).collect(Collectors.toList());
+        stopWatch.split();
+        return stopWatch.getSplitTime();
+    }
+
+    public static long getElapsedTimeOfFilterWithStreamParallelInMs(int[] arrayInt) {
+        StopWatch stopWatch = StopWatch.createStarted();
         List<Integer> numberFiltered2 = Arrays.stream(arrayInt).parallel()
                 .boxed()
                 .filter(x -> x > 50).collect(Collectors.toList());
+        stopWatch.split();
+        return stopWatch.getSplitTime();
+    }
+
+    public static double getElapsedTimeOfFindMaxWithForLoopInMs(int[] arrayInt) {
+        int max = Integer.MIN_VALUE;
+        StopWatch stopWatch = StopWatch.createStarted();
+        for (int i = 0; i < arrayInt.length; i++) {
+            if (max < arrayInt[i]) {
+                max = arrayInt[i];
+            }
+        }
+        stopWatch.split();
+        return stopWatch.getSplitTime();
+    }
+
+    public static double getElapsedTimeOfFindMaxWithForStreamInMs(int[] arrayInt) {
+        StopWatch stopWatch = StopWatch.createStarted();
+        OptionalInt max = Arrays.stream(arrayInt).max();
         stopWatch.split();
         return stopWatch.getSplitTime();
     }
