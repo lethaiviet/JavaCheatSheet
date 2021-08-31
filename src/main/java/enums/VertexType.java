@@ -11,8 +11,8 @@ public enum VertexType {
     BOTTOM_LEFT(Direction.BOTTOM, Direction.LEFT),
     BOTTOM_RIGHT(Direction.BOTTOM, Direction.RIGHT);
 
-    Direction direction1;
-    Direction direction2;
+    private final Direction direction1;
+    private final Direction direction2;
 
     public boolean hasDirection(Direction direction) {
         return direction1 == direction || direction2 == direction;

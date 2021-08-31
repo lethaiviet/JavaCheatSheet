@@ -12,5 +12,5 @@ public enum Direction {
     LEFT(new Point(-1, 0)),
     RIGHT(new Point(1, 0));
 
-    private Point directorVec;
+    private final Point directorVec;
 }

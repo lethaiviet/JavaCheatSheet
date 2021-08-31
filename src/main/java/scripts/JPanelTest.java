@@ -2,6 +2,7 @@ package scripts;
 
 import lombok.Setter;
 import lombok.SneakyThrows;
+import objects.BackGround;
 import objects.FindingPathBFS;
 import objects.RoadMap;
 import org.jfree.ui.Size2D;
@@ -9,38 +10,29 @@ import org.jfree.ui.Size2D;
 import java.awt.*;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import utils.Common;
 
 @Setter
 public class JPanelTest extends JPanel {
     private RoadMap roadMap;
     private FindingPathBFS findingPathBFS;
+    private BackGround backGround;
 
     @Override
     public void paintComponent(Graphics g) {
+        backGround.draw(g);
+
         g.setColor(Color.YELLOW);
         findingPathBFS.draw(g);
 
-        g.setColor(Color.BLACK);
+        g.setColor(Color.WHITE);
         roadMap.draw(g);
-    }
-
-    private void drawCircle(Graphics g, Point center, int radius) {
-        g.drawOval(center.x - radius / 2, center.y - radius / 2, radius, radius);
-    }
-
-    private void drawLine(Graphics g, Point start, Point end) {
-        g.drawLine(start.x, start.y, end.x, end.y);
-    }
-
-    private static Size2D getScreenSize() {
-        GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-        return new Size2D(gd.getDisplayMode().getWidth(), gd.getDisplayMode().getHeight());
     }
 
     @SneakyThrows
     public static void main(String[] args) {
-        Size2D screenSize = JPanelTest.getScreenSize();
-        int heightOfSquare = 10;
+        Size2D screenSize = Common.getScreenSize();
+        int heightOfSquare = 15;
         int numOfSquareSkip = 20;
 
         int numOfSquareRows = (int) (screenSize.height / heightOfSquare - numOfSquareSkip);
@@ -54,10 +46,13 @@ public class JPanelTest extends JPanel {
                 new Point(numOfSquareColumns - 1, numOfSquareRows - 1));
         findingPathBFS.calculate();
 
+        BackGround backGround = new BackGround(screenSize, Color.BLACK);
+
         JFrame jFrame = new JFrame();
         JPanelTest jPanelTest = new JPanelTest();
         jPanelTest.setRoadMap(roadMap);
         jPanelTest.setFindingPathBFS(findingPathBFS);
+        jPanelTest.setBackGround(backGround);
         jFrame.add(jPanelTest);
         jFrame.setSize((int) screenSize.width, (int) screenSize.height);
         jFrame.setVisible(true);
