@@ -1,13 +1,16 @@
 package enums;
 
+import java.awt.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
 public enum Direction {
-    TOP,
-    BOTTOM,
-    LEFT,
-    RIGHT;
+    TOP(new Point(0, -1)),
+    BOTTOM(new Point(0, 1)),
+    LEFT(new Point(-1, 0)),
+    RIGHT(new Point(1, 0));
+
+    private Point directorVec;
 }

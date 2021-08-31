@@ -1,8 +1,10 @@
 package objects;
 
+import enums.Direction;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.Getter;
@@ -44,5 +46,37 @@ public class RoadMap {
 //                squares.get(indX).get(indY).draw(g, String.format("(%s, %s)", indX, indY));
             }
         }
+    }
+
+    public Square getSquareByIndex(Point idx) {
+        return squares.get(idx.y).get(idx.x);
+    }
+
+    private boolean isIndexValid(Point idx) {
+        return idx.x >= 0
+                && idx.y >= 0
+                && idx.x < numOfColumns
+                && idx.y < numOfRows;
+    }
+
+    private List<Point> getNeighbouringIndex(Square square) {
+        return Arrays.stream(Direction.values())
+                .map(square::getIdxByDirection)
+                .filter(this::isIndexValid)
+                .collect(Collectors.toList());
+    }
+
+    public List<Square> getNeighbouringSquares(Square square) {
+        List<Square> squares = new ArrayList<>();
+        for (Direction direction : Direction.values()) {
+            Point idx = square.getIdxByDirection(direction);
+
+            if (!isIndexValid(idx)) continue;
+            Square neighbor = getSquareByIndex(idx);
+
+            if (!square.isPassing(neighbor, direction)) continue;
+            squares.add(neighbor);
+        }
+        return squares;
     }
 }

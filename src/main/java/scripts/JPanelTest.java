@@ -1,6 +1,8 @@
 package scripts;
 
 import lombok.Setter;
+import lombok.SneakyThrows;
+import objects.FindingPathBFS;
 import objects.RoadMap;
 import org.jfree.ui.Size2D;
 
@@ -11,19 +13,14 @@ import javax.swing.JPanel;
 @Setter
 public class JPanelTest extends JPanel {
     private RoadMap roadMap;
+    private FindingPathBFS findingPathBFS;
+
     @Override
     public void paintComponent(Graphics g) {
-//        Size2D screenSize = getScreenSize();
-//        int radius = 40;
-//        int midScreenWidth = (int) screenSize.width / 2;
-//        Point center1 = new Point(midScreenWidth, 40);
-//        Point center2 = new Point(midScreenWidth, 100);
-//
+        g.setColor(Color.YELLOW);
+        findingPathBFS.draw(g);
 
-//        drawCircle(g, center1, radius);
-//        drawCircle(g, center2, radius);
-//        drawLine(g, center1, center2);
-
+        g.setColor(Color.BLACK);
         roadMap.draw(g);
     }
 
@@ -40,6 +37,7 @@ public class JPanelTest extends JPanel {
         return new Size2D(gd.getDisplayMode().getWidth(), gd.getDisplayMode().getHeight());
     }
 
+    @SneakyThrows
     public static void main(String[] args) {
         Size2D screenSize = JPanelTest.getScreenSize();
         int heightOfSquare = 10;
@@ -51,12 +49,23 @@ public class JPanelTest extends JPanel {
         Point topLeftPosition = new Point(heightOfSquare * numOfSquareSkip / 2, heightOfSquare * numOfSquareSkip / 2);
         RoadMap roadMap = new RoadMap(numOfSquareRows, numOfSquareColumns, heightOfSquare, topLeftPosition);
 
+        FindingPathBFS findingPathBFS = new FindingPathBFS(roadMap,
+                new Point(0, 0),
+                new Point(numOfSquareColumns - 1, numOfSquareRows - 1));
+        findingPathBFS.calculate();
+
         JFrame jFrame = new JFrame();
         JPanelTest jPanelTest = new JPanelTest();
         jPanelTest.setRoadMap(roadMap);
+        jPanelTest.setFindingPathBFS(findingPathBFS);
         jFrame.add(jPanelTest);
         jFrame.setSize((int) screenSize.width, (int) screenSize.height);
         jFrame.setVisible(true);
+
+        while (true) {
+            jFrame.repaint();
+            Thread.sleep(30);
+        }
     }
 
 }
